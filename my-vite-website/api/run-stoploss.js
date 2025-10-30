@@ -54,14 +54,68 @@ const simulateStrategy = (prices, timestamps, dropPct, reEntryPct) => {
   return { strategyPortfolio, buyHoldPortfolio };
 };
 
+const fetchAlphaVantageData = async (ticker, apiKey) => {
+  const url = new URL('https://www.alphavantage.co/query');
+  url.searchParams.set('function', 'TIME_SERIES_INTRADAY');
+  url.searchParams.set('symbol', ticker);
+  url.searchParams.set('interval', '60min');
+  url.searchParams.set('outputsize', 'full');
+  url.searchParams.set('apikey', apiKey);
+
+  const response = await fetch(url.toString());
+  if (!response.ok) {
+    throw new Error(`Alpha Vantage error: ${response.statusText}`);
+  }
+
+  const payload = await response.json();
+
+  if (payload.Note) {
+    throw new Error('Alpha Vantage rate limit reached. Please try again later.');
+  }
+
+  if (payload['Error Message']) {
+    throw new Error(payload['Error Message']);
+  }
+
+  const series = payload['Time Series (60min)'];
+  if (!series || typeof series !== 'object') {
+    throw new Error('No intraday data returned from Alpha Vantage.');
+  }
+
+  const startOfYear = new Date(new Date().getFullYear(), 0, 1);
+
+  const entries = Object.entries(series)
+    .map(([timestamp, values]) => {
+      const close = parseFloat(values['4. close']);
+      const date = new Date(`${timestamp}Z`);
+      return {
+        timestamp,
+        isoTimestamp: date.toISOString(),
+        close,
+        date
+      };
+    })
+    .filter(({ close, date }) => Number.isFinite(close) && date >= startOfYear)
+    .sort((a, b) => a.date - b.date);
+
+  if (entries.length === 0) {
+    throw new Error('Alpha Vantage response did not contain recent intraday data.');
+  }
+
+  return {
+    prices: entries.map((entry) => entry.close),
+    timestamps: entries.map((entry) => entry.isoTimestamp)
+  };
+};
+
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
     return createErrorResponse(res, 405, 'Method not allowed');
   }
 
-  const apiKey = process.env.FINNHUB_API_KEY;
+  const apiKey = process.env.ALPHA_VANTAGE_API_KEY;
   if (!apiKey) {
-    return createErrorResponse(res, 500, 'FINNHUB_API_KEY is not set');
+    return createErrorResponse(res, 500, 'ALPHA_VANTAGE_API_KEY is not set');
   }
 
   const ticker = typeof req.query.ticker === 'string' && req.query.ticker.trim()
@@ -74,30 +128,8 @@ export default async function handler(req, res) {
   const dropPct = Math.abs(isNaN(stopLossParam) ? DEFAULT_DROP : stopLossParam) / 100;
   const reEntryPct = Math.abs(isNaN(reEntryParam) ? DEFAULT_REENTRY : reEntryParam) / 100;
 
-  const now = Math.floor(Date.now() / 1000);
-  const startOfYear = Math.floor(new Date(new Date().getFullYear(), 0, 1).getTime() / 1000);
-
-  const candleUrl = new URL('https://finnhub.io/api/v1/stock/candle');
-  candleUrl.searchParams.set('symbol', ticker);
-  candleUrl.searchParams.set('resolution', '60');
-  candleUrl.searchParams.set('from', `${startOfYear}`);
-  candleUrl.searchParams.set('to', `${now}`);
-  candleUrl.searchParams.set('token', apiKey);
-
   try {
-    const response = await fetch(candleUrl.toString());
-    if (!response.ok) {
-      return createErrorResponse(res, response.status, `Finnhub error: ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    if (data.s !== 'ok' || !Array.isArray(data.c) || data.c.length === 0) {
-      return createErrorResponse(res, 502, 'No candle data returned from Finnhub');
-    }
-
-    const prices = data.c;
-    const timestamps = data.t.map((unix) => new Date(unix * 1000).toISOString());
-
+    const { prices, timestamps } = await fetchAlphaVantageData(ticker, apiKey);
     const { strategyPortfolio, buyHoldPortfolio } = simulateStrategy(prices, timestamps, dropPct, reEntryPct);
 
     return res.status(200).json({
@@ -108,7 +140,7 @@ export default async function handler(req, res) {
       }
     });
   } catch (error) {
-    console.error('Error fetching Finnhub data:', error);
-    return createErrorResponse(res, 500, 'Failed to fetch data from Finnhub');
+    console.error('Error fetching Alpha Vantage data:', error);
+    return createErrorResponse(res, 502, error.message || 'Failed to fetch data from Alpha Vantage');
   }
 }

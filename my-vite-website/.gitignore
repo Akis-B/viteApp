@@ -10,3 +10,4 @@ status.txt
 report.html
 src/.yfinance-cache/
 .DS_Store
+.env.local
