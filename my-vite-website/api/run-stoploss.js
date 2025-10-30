@@ -98,7 +98,7 @@ const fetchAlphaVantageData = async (ticker, apiKey) => {
     .sort((a, b) => a.date - b.date);
 
   if (entries.length === 0) {
-    throw new Error('Alpha Vantage response did not contain recent intraday data.');
+    throw new Error('Alpha Vantage response did not contain recent daily data.');
   }
 
   return {
