@@ -266,7 +266,7 @@ const App: React.FC = () => {
                         )}
                     </div>
 
-                    <h2 className="section-header">3.   Understand how to perfect your <u>portfolio</u></h2>
+                    <h2 className="section-header">3.   Understand how to protect your <u>portfolio</u></h2>
                     <div
                         className="image-container"
                         ref={imageRef3}
