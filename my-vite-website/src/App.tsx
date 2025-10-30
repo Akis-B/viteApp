@@ -7,6 +7,9 @@ import PixelatedMoney from './images/PixelatedMoney.png';
 import PixExcavator from './images/PixExcavator.png';
 import CursorArrow from './images/Black-Pixel-Mouse-Cursor-Arow-Fixed.svg';
 import HomePageText from './images/HomePageText.svg';
+import LearnStock from './images/LearnStock.svg';
+import LearnVolatility from './images/LearnVolatility.svg';
+import StopLossCalc from './images/Stoplosscalc.svg';
 
 // Constants
 const COLOR_GREEN = '#1AB832';
@@ -51,22 +54,30 @@ const App: React.FC = () => {
     const imageRef1 = useRef<HTMLDivElement>(null);
     const imageRef2 = useRef<HTMLDivElement>(null);
     const imageRef3 = useRef<HTMLDivElement>(null);
+    const [maxScroll, setMaxScroll] = useState<number>(Infinity);
+
+    const calculateMaxScroll = useCallback(() => {
+        if (!imageRef3.current) {
+            return;
+        }
+        const rect = imageRef3.current.getBoundingClientRect();
+        if (rect.height === 0) {
+            return;
+        }
+        const scrollY = window.scrollY;
+        const totalPosition = rect.bottom + scrollY * (1 + PARALLAX_FACTOR);
+        const maxScrollValue = Math.max(0, (totalPosition - window.innerHeight + 10) / (1 + PARALLAX_FACTOR));
+        setMaxScroll(maxScrollValue);
+    }, []);
 
     useEffect(() => {
         const handleScroll = () => {
             const scrollY = window.scrollY;
             const newParallaxOffset = scrollY * PARALLAX_FACTOR;
 
-            // Limit scroll to the bottom of the content rectangle
-            if (rectangleRef.current) {
-                const rectangleTop = rectangleMargin - newParallaxOffset;
-                const rectangleBottom = rectangleTop + rectangleRef.current.offsetHeight;
-                const maxScroll = rectangleBottom - window.innerHeight;
-
-                if (scrollY > maxScroll) {
-                    window.scrollTo(0, maxScroll);
-                    return;
-                }
+            if (scrollY > maxScroll) {
+                window.scrollTo(0, maxScroll);
+                return;
             }
 
             // Update colors based on scroll position
@@ -89,7 +100,7 @@ const App: React.FC = () => {
         handleScroll();
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
-    }, [hasScrolledOnce, rectangleMargin]);
+    }, [hasScrolledOnce, rectangleMargin, maxScroll]);
 
     useEffect(() => {
         const updateMargin = () => {
@@ -103,6 +114,16 @@ const App: React.FC = () => {
         window.addEventListener('resize', updateMargin);
         return () => window.removeEventListener('resize', updateMargin);
     }, []);
+
+    useEffect(() => {
+        calculateMaxScroll();
+        window.addEventListener('resize', calculateMaxScroll);
+        return () => window.removeEventListener('resize', calculateMaxScroll);
+    }, [calculateMaxScroll]);
+
+    useEffect(() => {
+        calculateMaxScroll();
+    }, [rectangleMargin, calculateMaxScroll]);
 
     // Memoized mouse handlers
     const handleMouseMove1 = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
@@ -145,12 +166,38 @@ const App: React.FC = () => {
     const handleNavigateToStopLoss = useCallback(() => {
         navigate('/StopLoss');
     }, [navigate]);
+    const handleNavigateToLearnVolatility = useCallback(() => {
+        navigate('/LearnVolatility');
+    }, [navigate]);
+    const handleNavigateToLearnStock = useCallback(() => {
+        navigate('/LearnStock');
+    }, [navigate]);
 
     return (
         <div>
             <div className="blue-background"></div>
             <header className="banner">
                 <h1 onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>VOLATILITY EXPLAINED</h1>
+                <div className="header-icons">
+                    <img
+                        src={LearnStock}
+                        alt="Learn Stock"
+                        className="header-icon"
+                        onClick={() => navigate('/LearnStock')}
+                    />
+                    <img
+                        src={LearnVolatility}
+                        alt="Learn Volatility"
+                        className="header-icon"
+                        onClick={() => navigate('/LearnVolatility')}
+                    />
+                    <img
+                        src={StopLossCalc}
+                        alt="Stop Loss Calculator"
+                        className="header-icon"
+                        onClick={() => navigate('/StopLoss')}
+                    />
+                </div>
             </header>
             <div className="background-content" ref={backgroundContentRef}>
                 <div className="hero-section">
@@ -182,7 +229,7 @@ const App: React.FC = () => {
                         onMouseLeave={handleMouseLeave1}
                     >
                         <img src={PixelatedStock} alt="Pixelated Stock" className="stock-image" />
-                        <LearnMoreButton />
+                        <LearnMoreButton onClick={handleNavigateToLearnStock} />
                         {isHovering1 && (
                             <img
                                 src={CursorArrow}
@@ -205,7 +252,7 @@ const App: React.FC = () => {
                         onMouseLeave={handleMouseLeave2}
                     >
                         <img src={PixelatedMoney} alt="Pixelated Money" className="stock-image" />
-                        <LearnMoreButton />
+                        <LearnMoreButton onClick={handleNavigateToLearnVolatility} />
                         {isHovering2 && (
                             <img
                                 src={CursorArrow}
@@ -227,7 +274,12 @@ const App: React.FC = () => {
                         onMouseEnter={handleMouseEnter3}
                         onMouseLeave={handleMouseLeave3}
                     >
-                        <img src={PixExcavator} alt="Pix Excavator" className="stock-image" />
+                        <img
+                            src={PixExcavator}
+                            alt="Pix Excavator"
+                            className="stock-image"
+                            onLoad={calculateMaxScroll}
+                        />
                         <LearnMoreButton onClick={handleNavigateToStopLoss} />
                         {isHovering3 && (
                             <img

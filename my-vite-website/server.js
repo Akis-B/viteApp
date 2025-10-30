@@ -77,6 +77,14 @@ app.get('/api/run-stoploss', async (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`API server running on http://localhost:${PORT}`);
-});
+const startServer = async () => {
+    try {
+        await app.listen(PORT);
+        console.log(`API server running on http://localhost:${PORT}`);
+    } catch (err) {
+        console.error('Failed to start server:', err);
+        process.exit(1);
+    }
+};
+
+startServer();

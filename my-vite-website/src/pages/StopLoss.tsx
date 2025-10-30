@@ -2,6 +2,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as d3 from 'd3';
 import '../styles.css';
+import LearnStock from '../images/LearnStock.svg';
+import LearnVolatility from '../images/LearnVolatility.svg';
+import StopLossCalc from '../images/Stoplosscalc.svg';
 
 interface DataPoint {
     timestamp: string;
@@ -128,7 +131,7 @@ const StopLoss: React.FC = () => {
         svg.append('path')
             .datum(strategyData)
             .attr('fill', 'none')
-            .attr('stroke', '#E5E020')
+            .attr('stroke', '#FF69B4')
             .attr('stroke-width', 3)
             .attr('d', strategyLine);
 
@@ -187,7 +190,7 @@ const StopLoss: React.FC = () => {
             .attr('x2', 40)
             .attr('y1', 35)
             .attr('y2', 35)
-            .attr('stroke', '#E5E020')
+            .attr('stroke', '#FF69B4')
             .attr('stroke-width', 3);
 
         legend.append('text')
@@ -221,11 +224,45 @@ const StopLoss: React.FC = () => {
             <div className="blue-background"></div>
             <header className="banner">
                 <h1 onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>VOLATILITY EXPLAINED</h1>
+                <div className="header-icons">
+                    <img
+                        src={LearnStock}
+                        alt="Learn Stock"
+                        className="header-icon"
+                        onClick={() => navigate('/LearnStock')}
+                    />
+                    <img
+                        src={LearnVolatility}
+                        alt="Learn Volatility"
+                        className="header-icon"
+                        onClick={() => navigate('/LearnVolatility')}
+                    />
+                    <img
+                        src={StopLossCalc}
+                        alt="Stop Loss Calculator"
+                        className="header-icon"
+                        onClick={() => navigate('/StopLoss')}
+                    />
+                </div>
             </header>
             <div className="content-rectangle" style={{ marginTop: 0, minHeight: '100vh', paddingTop: '100px' }}>
                 <div className="content-wrapper" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: '850px', margin: '0 auto' }}>
+                    <div style={{ marginBottom: '40px', color: 'white', fontFamily: 'PT Serif, serif', lineHeight: 1.6 }}>
+                        <h2 style={{ fontSize: '28px', marginBottom: '16px', fontFamily: 'PT Serif, serif' }}>
+                            <em><strong>Imagine this...</strong></em>
+                        </h2>
+                        <p style={{ fontSize: '18px', marginBottom: '16px', fontFamily: 'PT Serif, serif' }}>
+                            Just like when you’re tracking flight prices or waiting for that perfect deal on The RealReal, you had a tool that could alert you when one of your stocks was dropping, or when its price finally hit your ideal buy-in target.
+                        </p>
+                        <p style={{ fontSize: '18px', marginBottom: '16px', fontFamily: 'PT Serif, serif' }}>
+                            When you get that alert, you could act right away: sell to limit losses or buy back in at a better price. That’s exactly what this tool helps you visualize. You can experiment by adjusting the percentages to see what would’ve happened if you had sold or bought at different times. In the investing world, this strategy is known as a stop-loss and re-entry tactic, and it’s one way to help protect yourself against market volatility.
+                        </p>
+                        <p style={{ fontSize: '18px', fontFamily: 'PT Serif, serif' }}>
+                            Right now, the calculator is showing the performance of SPY (S&amp;P 500), an index that tracks how the 500 largest U.S. companies are doing, but you can try it out with your favorite company’s ticker too.
+                        </p>
+                    </div>
                     {/* Ticker Input */}
-                    <div style={{ marginBottom: '30px', display: 'flex', gap: '10px', alignItems: 'center' }}>
+                    <div style={{ marginBottom: '30px', display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center', rowGap: '12px' }}>
                         <label style={{ color: 'white', fontSize: '18px', fontFamily: 'PT Serif, serif' }}>
                             Ticker:
                         </label>
@@ -246,6 +283,7 @@ const StopLoss: React.FC = () => {
                                 backgroundColor: 'transparent',
                                 color: 'white',
                                 width: '120px',
+                                minWidth: '120px',
                                 textTransform: 'uppercase'
                             }}
                             placeholder="SPY"
@@ -261,7 +299,8 @@ const StopLoss: React.FC = () => {
                                 color: '#E5E020',
                                 cursor: 'pointer',
                                 fontWeight: 'bold',
-                                transition: 'all 0.3s ease'
+                                transition: 'all 0.3s ease',
+                                minWidth: '140px'
                             }}
                             onMouseEnter={(e) => {
                                 e.currentTarget.style.backgroundColor = '#E5E020';
@@ -277,9 +316,9 @@ const StopLoss: React.FC = () => {
                     </div>
 
                     {/* Sliders */}
-                    <div style={{ width: '100%', maxWidth: '700px', marginBottom: '40px', display: 'flex', gap: '30px' }}>
+                    <div style={{ width: '100%', maxWidth: '700px', marginBottom: '40px', display: 'flex', gap: '30px', flexWrap: 'wrap', justifyContent: 'center', rowGap: '24px' }}>
                         {/* Stop Loss Slider */}
-                        <div style={{ flex: 1 }}>
+                        <div style={{ flex: 1, minWidth: '260px' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                                 <label style={{ color: 'white', fontSize: '16px', fontFamily: 'PT Serif, serif' }}>
                                     Sell when...
@@ -311,7 +350,7 @@ const StopLoss: React.FC = () => {
                         </div>
 
                         {/* Re-entry Slider */}
-                        <div style={{ flex: 1 }}>
+                        <div style={{ flex: 1, minWidth: '260px' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                                 <label style={{ color: 'white', fontSize: '16px', fontFamily: 'PT Serif, serif' }}>
                                     Buy again...

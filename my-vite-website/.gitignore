@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.vite/
+build/
+coverage/
+*.log
+buy_hold_portfolio.csv
+strategy_portfolio.csv
+status.txt
+report.html
+src/.yfinance-cache/
+.DS_Store

@@ -34,6 +34,9 @@ body {
     border-bottom: 0.5px solid white;
     background-color: transparent;
     z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .banner h1 {
@@ -41,6 +44,23 @@ body {
     font-size: clamp(24px, 3vw, 39px);
     color: white;
     margin: 0;
+}
+
+.header-icons {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.header-icon {
+    height: 16px;
+    cursor: pointer;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.header-icon:hover {
+    opacity: 0.6;
 }
 
 .background-content {
@@ -169,6 +189,9 @@ body {
 
 .learn-more-btn svg {
     display: block;
+    width: 250px;
+    max-width: 100%;
+    height: auto;
 }
 
 .btn-stroke,
@@ -182,6 +205,31 @@ body {
 
 .learn-more-btn:hover .btn-text {
     fill: white;
+}
+
+.learn-volatility-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh;
+    width: 100%;
+}
+
+.learn-volatility-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+    border-radius: 12px;
+    padding: 40px;
+    max-width: 500px;
+    width: 100%;
+}
+
+.learn-volatility-card img {
+    width: 100%;
+    height: auto;
+    display: block;
 }
 
 /* Slider styles */
@@ -218,4 +266,130 @@ input[type="range"]::-webkit-slider-runnable-track {
 input[type="range"]::-moz-range-track {
     height: 8px;
     border-radius: 5px;
+}
+
+@media (max-width: 1024px) {
+    .hero-section {
+        padding: 0 30px;
+        gap: 40px;
+    }
+
+    .content-rectangle {
+        padding: 40px;
+        min-height: 400vh;
+    }
+
+    .subtext {
+        padding: 30px 30px 70px 30px;
+    }
+}
+
+@media (max-width: 768px) {
+    .banner {
+        padding: 12px 18px;
+    }
+
+    .header-icons {
+        gap: 14px;
+    }
+
+    .hero-section {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .globe-container {
+        margin: 20px auto 0 auto;
+    }
+
+    .hero-text {
+        padding: 50px 0 30px;
+    }
+
+    .subtext {
+        padding: 20px 16px 60px 16px;
+        text-align: center;
+    }
+
+    .content-rectangle {
+        padding: 32px 20px;
+        min-height: 340vh;
+    }
+
+    .homepage-text {
+        margin: 80px auto 50px;
+    }
+
+    .section-header {
+        margin-bottom: 70px;
+    }
+
+    .section-header:not(:first-of-type) {
+        margin-top: 90px;
+    }
+
+    .learn-more-btn {
+        bottom: 12px;
+    }
+
+    .learn-more-btn svg {
+        width: min(80vw, 220px);
+    }
+
+    .learn-volatility-wrapper {
+        min-height: 50vh;
+    }
+
+    .learn-volatility-card {
+        padding: 28px;
+    }
+}
+
+@media (max-width: 480px) {
+    .banner {
+        padding: 10px 14px;
+    }
+
+    .header-icons {
+        gap: 10px;
+    }
+
+    .header-icon {
+        height: 14px;
+    }
+
+    .hero-text {
+        padding: 40px 0 20px;
+    }
+
+    .subtext {
+        padding: 16px 12px 50px 12px;
+        font-size: 18px;
+    }
+
+    .content-rectangle {
+        padding: 24px 16px;
+        min-height: 280vh;
+    }
+
+    .homepage-text {
+        margin: 60px auto 40px;
+    }
+
+    .section-header {
+        margin-bottom: 50px;
+    }
+
+    .section-header:not(:first-of-type) {
+        margin-top: 70px;
+    }
+
+    .learn-more-btn svg {
+        width: min(85vw, 210px);
+    }
+
+    .learn-volatility-card {
+        padding: 22px;
+    }
 }

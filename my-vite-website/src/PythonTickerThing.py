@@ -1,7 +1,18 @@
-import pandas as pd
-import numpy as np
-import yfinance as yf
+import logging
 import sys
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import yfinance as yf
+
+# Ensure yfinance cache writes to a local, writable directory
+CACHE_DIR = Path(__file__).resolve().parent / ".yfinance-cache"
+CACHE_DIR.mkdir(exist_ok=True)
+yf.cache.set_cache_location(str(CACHE_DIR))
+
+DATA_DIR = Path(__file__).resolve().parent.parent / "data"
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 # ---- Config ----
 TICKER = sys.argv[1] if len(sys.argv) > 1 else "SPY"
@@ -14,20 +25,40 @@ def fetch_ytd_hourly(ticker: str) -> pd.DataFrame:
     Fetch YTD hourly close prices using yfinance.
     Returns a DataFrame with index=Datetime (tz-aware) and column 'Close'.
     """
-    # YTD hourly data
-    df = yf.download(
-        ticker,
-        period="ytd",
-        interval="1h",
-        auto_adjust=True,   # adjust for splits/dividends
-        progress=False
-    )
-    if df.empty:
-        raise RuntimeError("No data returned. Is the symbol correct and market open days available?")
-    df = df[['Close']].dropna()
-    # Ensure strictly increasing datetime index
-    df = df[~df.index.duplicated(keep="last")].sort_index()
-    return df
+    try:
+        # YTD hourly data
+        df = yf.download(
+            ticker,
+            period="ytd",
+            interval="1h",
+            auto_adjust=True,   # adjust for splits/dividends
+            progress=False
+        )
+        if df.empty:
+            raise RuntimeError("No data returned from yfinance.")
+        df = df[['Close']].dropna()
+        # Ensure strictly increasing datetime index
+        df = df[~df.index.duplicated(keep="last")].sort_index()
+        logging.info("Fetched %s rows from yfinance for %s", len(df), ticker.upper())
+        return df
+    except Exception as exc:  # noqa: BLE001
+        logging.warning("Live fetch failed for %s: %s", ticker.upper(), exc)
+        fallback_path = DATA_DIR / f"{ticker.upper()}_ytd_hourly.csv"
+        if not fallback_path.exists():
+            raise RuntimeError(
+                f"Unable to fetch data for {ticker.upper()} and no fallback file found at {fallback_path}."
+            ) from exc
+        logging.info("Falling back to %s", fallback_path)
+        fallback_df = pd.read_csv(fallback_path)
+        if {"timestamp", "Close"} - set(fallback_df.columns):
+            raise RuntimeError(f"Fallback file {fallback_path} missing required columns.")
+        fallback_df["timestamp"] = pd.to_datetime(fallback_df["timestamp"], utc=True, errors="coerce")
+        fallback_df = fallback_df.dropna(subset=["timestamp"]).set_index("timestamp")
+        fallback_df = fallback_df[["Close"]].sort_index()
+        if fallback_df.empty:
+            raise RuntimeError(f"Fallback file {fallback_path} did not yield any rows.")
+        logging.info("Loaded %s rows from fallback for %s", len(fallback_df), ticker.upper())
+        return fallback_df
 
 def simulate_stoploss_reentry(prices: pd.Series,
                               start_cash=START_CASH,
