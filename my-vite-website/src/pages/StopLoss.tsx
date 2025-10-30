@@ -25,8 +25,8 @@ const StopLoss: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [ticker, setTicker] = useState('SPY');
     const [inputTicker, setInputTicker] = useState('SPY');
-    const [stopLoss, setStopLoss] = useState(-3); // -3% default
-    const [reEntry, setReEntry] = useState(2); // +2% default
+    const [stopLoss, setStopLoss] = useState(-1.5); // -1.5% default
+    const [reEntry, setReEntry] = useState(0); // 0% default
 
     useEffect(() => {
         const fetchDataAndRender = async () => {

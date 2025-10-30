@@ -1,6 +1,6 @@
 const START_CASH = 100_000;
-const DEFAULT_DROP = 3;
-const DEFAULT_REENTRY = 2;
+const DEFAULT_DROP = 1.5;
+const DEFAULT_REENTRY = 0;
 
 const createErrorResponse = (res, status, message) => {
   res.status(status).json({ success: false, error: message });
