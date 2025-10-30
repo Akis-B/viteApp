@@ -7,12 +7,18 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "serve": "vite preview"
+    "serve": "vite preview",
+    "server": "node server.js"
   },
   "dependencies": {
+    "@types/d3": "^7.4.3",
     "@types/three": "^0.180.0",
+    "cors": "^2.8.5",
+    "d3": "^7.9.0",
+    "express": "^5.1.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
+    "react-router-dom": "^7.9.5",
     "three": "^0.180.0"
   },
   "devDependencies": {

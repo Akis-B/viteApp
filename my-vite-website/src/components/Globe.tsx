@@ -59,14 +59,16 @@ const Globe: React.FC<GlobeProps> = ({ color }) => {
             isDragging = false;
         };
 
-        renderer.domElement.addEventListener('mousedown', onMouseDown);
-        renderer.domElement.addEventListener('mousemove', onMouseMove);
-        renderer.domElement.addEventListener('mouseup', onMouseUp);
-        renderer.domElement.addEventListener('mouseleave', onMouseUp);
+        const element = renderer.domElement;
+        element.addEventListener('mousedown', onMouseDown);
+        element.addEventListener('mousemove', onMouseMove);
+        element.addEventListener('mouseup', onMouseUp);
+        element.addEventListener('mouseleave', onMouseUp);
 
         // Animation
+        let animationId: number;
         const animate = () => {
-            requestAnimationFrame(animate);
+            animationId = requestAnimationFrame(animate);
 
             if (!isDragging) {
                 rotation.y += 0.002;
@@ -82,13 +84,20 @@ const Globe: React.FC<GlobeProps> = ({ color }) => {
 
         // Cleanup
         return () => {
-            renderer.domElement.removeEventListener('mousedown', onMouseDown);
-            renderer.domElement.removeEventListener('mousemove', onMouseMove);
-            renderer.domElement.removeEventListener('mouseup', onMouseUp);
-            renderer.domElement.removeEventListener('mouseleave', onMouseUp);
-            mountRef.current?.removeChild(renderer.domElement);
+            cancelAnimationFrame(animationId);
+            element.removeEventListener('mousedown', onMouseDown);
+            element.removeEventListener('mousemove', onMouseMove);
+            element.removeEventListener('mouseup', onMouseUp);
+            element.removeEventListener('mouseleave', onMouseUp);
+            if (mountRef.current && element.parentNode === mountRef.current) {
+                mountRef.current.removeChild(element);
+            }
+            geometry.dispose();
+            wireframe.dispose();
+            (line.material as THREE.LineBasicMaterial).dispose();
+            renderer.dispose();
         };
-    }, [color]);
+    }, []);
 
     useEffect(() => {
         if (materialRef.current) {
