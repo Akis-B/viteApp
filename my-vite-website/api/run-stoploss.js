@@ -56,8 +56,9 @@ const simulateStrategy = (prices, timestamps, dropPct, reEntryPct) => {
 
 const fetchAlphaVantageData = async (ticker, apiKey) => {
   const url = new URL('https://www.alphavantage.co/query');
-  url.searchParams.set('function', 'TIME_SERIES_DAILY_ADJUSTED');
+  url.searchParams.set('function', 'TIME_SERIES_INTRADAY');
   url.searchParams.set('symbol', ticker);
+  url.searchParams.set('interval', '60min');
   url.searchParams.set('outputsize', 'full');
   url.searchParams.set('apikey', apiKey);
 
@@ -76,7 +77,7 @@ const fetchAlphaVantageData = async (ticker, apiKey) => {
     throw new Error(payload['Error Message']);
   }
 
-  const series = payload['Time Series (Daily)'];
+  const series = payload['Time Series (60min)'];
   if (!series || typeof series !== 'object') {
     throw new Error('No intraday data returned from Alpha Vantage.');
   }
