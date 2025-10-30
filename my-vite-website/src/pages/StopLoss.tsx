@@ -34,8 +34,11 @@ const StopLoss: React.FC = () => {
                 setLoading(true);
                 setError(null);
 
+                const baseUrl = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+                const endpoint = `${baseUrl}/api/run-stoploss?ticker=${ticker}&stopLoss=${Math.abs(stopLoss)}&reEntry=${reEntry}`;
+
                 // Fetch data from API with ticker and strategy parameters
-                const response = await fetch(`http://localhost:3001/api/run-stoploss?ticker=${ticker}&stopLoss=${Math.abs(stopLoss)}&reEntry=${reEntry}`);
+                const response = await fetch(endpoint);
                 const result = await response.json();
 
                 if (!result.success) {
